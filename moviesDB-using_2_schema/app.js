@@ -1,98 +1,148 @@
-var express = require('express')
-var app   = express()
-// var Genres = require('./Genres')
-var MyMovies = require('./MyMovies')
+var express = require('express');
+var app = express();
 
-var mongoose = require('mongoose')
+var Genres = require('./Genres');
+var MyMovies = require('./MyMovies');
 
-mongoose.connect('mongodb://localhost/moviesDB');
+var mongoose = require('mongoose');
+
+mongoose.connect('mongodb://localhost/moviesDB_twoSchema');
+
+/// ============================== MOVIES API =================================== ///
 
 
-///===================MOVIES API================================================
+// ======= ADD ======= //
+
+// add genre
+app.post('/add/:genre',(req,res)=>{  // can add the same genre
+  var genre= {
+    genre:req.params.genre
+  };
+  Genres.create(genre,(err, data)=>{
+     data ? res.send(data) : res.send(err);
+  });
+});
 
 // add movie
-app.post('/add/add/:movie/:year/:genre',(req,res)=>{
+app.post('/add/:movie/:genre/:year',(req,res)=>{
   var movie = {
     movie:req.params.movie,
     year:req.params.year,
     genre:req.params.genre
-  }
+  };
   MyMovies.create(movie,(err, data)=>{
-     data ? res.send(data) : res.send(err)
-  })
-})
+     data ? res.send(data) : res.send(err);
+  });
+  // check if new genre exists in Genre - if not add to genre
+});
 
-// add genre
-app.post('/add/:genre',(req,res)=>{
-  var genre= {
-    genre:req.params.genre
-  }
-  MyMovies.create(genre,(err, data)=>{
-     data ? res.send(data) : res.send(err)
-  })
-})
 
-// find all movies by genre
-app.get('/find/:genre',(req,res)=>{
-  MyMovies.find({genre:req.params.genre},(e,d)=>{
-    e ? console.log(e) : res.send(d)
-  })
-})
+// ======= FIND ======= //
 
-// find specific movie by genre
-app.get('/find/:genre/:movie',(req,res)=>{
-  var movie = {
+// find specific movie
+app.get('/find/:movie',(req,res)=>{
+  var movieGen = {
     movie:req.params.movie,
-    genre:req.params.genre
   }
-  MyMovies.find(movie,(e,d)=>{
-    e ? console.log(e) : res.send(d)
-  })
-})
+  MyMovies.find(movieGen,(e,d)=>{
+    e ? console.log(e) : res.send(d);
+  });
+});
 
 // find - List all movies
-app.get('/movies/all/list',(req,res)=>{
+app.get('/find/movies/all/list',(req,res)=>{
   MyMovies.find({},(e,d)=>{
-    e ? console.log(e) : res.send(d)
-  })
-})
+    e ? console.log(e) : res.send(d);
+  });
+});
+
+// find - List all genres
+app.get('/find/genres/all/list',(req,res)=>{
+  Genres.find({},(e,d)=>{
+    e ? console.log(e) : res.send(d);
+  });
+});
 
 // find - List all movies by specific genre
-app.get('/movies/all/:list',(req,res)=>{
-  MyMovies.find({genre:req.params.list},(e,d)=>{
-    e ? console.log(e) : res.send(d)
-  })
-})
+app.get('/find/movies/all/:genre',(req,res)=>{
+  MyMovies.find({genre:req.params.genre},(e,d)=>{
+    e ? console.log(e) : res.send(d);
+  });
+});
+
+
+// ======= REMOVE ======= //
 
 //remove genre
 app.post('/remove/genre/:genre',(req,res)=>{
-  MyMovies.remove({genre:req.params.genre},(e,d)=>{
-    e ? console.log(e) : res.send(d)
-  })
-})
+  Genres.remove({genre:req.params.genre},(e,d)=>{
+    e ? console.log(e) : res.send(d);
+  });
+});
 
 //remove movie
 app.post('/remove/movie/:movie',(req,res)=>{
   MyMovies.remove({movie:req.params.movie},(e,d)=>{
-    e ? console.log(e) : res.send(d)
-  })
-})
+    e ? console.log(e) : res.send(d);
+  });
+});
+
+
+// ======= UPDATE ======= //
 
 //update genre
-app.post('/update/:genre/:newG/genre',(req,res)=>{
-  MyMovies.update({genre:req.params.genre},{$set:{genre:req.params.newG}},(e,d)=>{
-      e ? console.log(e) : res.send(d)
-  })
-})
+app.post('/update/:genre/:newGenre/genre',(req,res)=>{
+  Genres.update({genre:req.params.genre},{$set:{genre:req.params.newG}},(e,d)=>{
+      e ? console.log(e) : res.send(d);
+  });
+});
 
-// update movie
-app.post('/update/:movie/:newM/movie'), (req,res)=>{
-  MyMovies.update({movie:req.params.movie}, {$set:{movie:req.params.newM}},(e,d)=>{
-    e ? console.log(e) : res.send(d)
-  })
-}
+// update movie name
+app.post('/update/:movie/:newMovie/movie',(req,res)=>{
+  MyMovies.update({movie:req.params.movie},{$set:{movie:req.params.newMovie}},(e,d)=>{
+      e ? console.log(e) : res.send(d);
+  });
+});
 
-app.listen(3000,()=>{console.log('listening on port 3000')})
+// update movie year
+app.post('/update/:movie/:newYear/year',(req,res)=>{
+  MyMovies.update({movie:req.params.movie},{$set:{year:req.params.newYear}},(e,d)=>{
+      e ? console.log(e) : res.send(d);
+  });
+});
+
+app.listen(3000,()=>{ console.log('listening on port 3000') });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -105,7 +155,6 @@ app.listen(3000,()=>{console.log('listening on port 3000')})
 //     refe:req.params.genre
 //   }
 //   MyMovies.create(movie,(err, data)=>{
-
 //      data ? res.send(data) : res.send(err)
 //   })
 // })
